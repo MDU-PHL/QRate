@@ -1,0 +1,85 @@
+def evaluate_condition(row, condition):
+    """Evaluate a single condition against a row of QC data.
+    
+    Args:
+        row: Dictionary representing a QC result row
+        condition: Dictionary with field, operator, and value(s)
+        
+    Returns:
+        Boolean indicating whether the condition is met
+    """
+    field = condition.get('field')
+    operator = condition.get('operator')
+    value = condition.get('value')
+    
+    # Handle missing fields gracefully
+    if field not in row:
+        return False
+    
+    # Get field value, handling type conversion
+    field_value = row[field]
+    
+    # Convert string representations of booleans
+    if isinstance(value, bool):
+        if field_value.lower() == 'true':
+            field_value = True
+        elif field_value.lower() == 'false':
+            field_value = False
+    
+    # Convert to numbers for numeric comparisons
+    if operator in ['<', '<=', '>', '>=']:
+        try:
+            field_value = float(field_value) if field_value else 0
+            value = float(value)
+        except ValueError:
+            return False
+    
+    # Evaluate based on operator
+    if operator == "==":
+        return field_value == value
+    elif operator == "!=":
+        return field_value != value
+    elif operator == "<":
+        return field_value < value
+    elif operator == "<=":
+        return field_value <= value
+    elif operator == ">":
+        return field_value > value
+    elif operator == ">=":
+        return field_value >= value
+    elif operator == "contains":
+        # Case-insensitive string matching
+        return str(value).lower() in str(field_value).lower()
+        
+    elif operator == "between_pct":
+        # Special operator for percentage-based range checking
+        min_field = condition.get('min_field')
+        max_field = condition.get('max_field')
+        pct = float(condition.get('pct', 0.1))  # Default to 10%
+        
+        # Handle missing bounds fields
+        if min_field not in row or max_field not in row:
+            return False
+            
+        try:
+            # Extract values and convert to float
+            min_value = float(row[min_field]) if row[min_field] and row[min_field] != '-' else None
+            max_value = float(row[max_field]) if row[max_field] and row[max_field] != '-' else None
+            field_value = float(field_value) if field_value else 0
+            
+            # Can't calculate range if either bound is missing
+            if min_value is None or max_value is None:
+                return False
+                
+            # Calculate extended range with percentage
+            extended_min = min_value * (1 - pct)
+            extended_max = max_value * (1 + pct)
+            
+            # Check if value is within extended range
+            return extended_min <= field_value <= extended_max
+            
+        except (ValueError, TypeError):
+            return False
+            
+    # Unrecognized operator
+    return False

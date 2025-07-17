@@ -1,0 +1,107 @@
+# MMS103 specific rules
+- id: "MMS103_FAIL_LOW_COVERAGE"
+  description: "Low coverage detected"
+  conditions:
+    - field: TEST_COVERAGE
+      operator: "=="
+      value: false
+    - field: COVERAGE
+      operator: "<"
+      value: 40
+  actions:
+    - field: MMS103
+      value: "FAIL"
+    - field: MMS109
+      value: "FAIL"
+    - field: TEST_QC
+      value: "FAIL"
+    - field: COMMENT
+      value: "FAIL due to low coverage"
+
+- id: "MMS103_PASS_GENOME_SIZE"
+  description: "Genome size within acceptable range"
+  conditions:
+    - field: TEST_GENOME_SIZE_KMER
+      operator: "=="
+      value: false
+    - field: GENOME_SIZE_KMER
+      operator: "between_pct"
+      min_field: GENOME_SIZE_MIN
+      max_field: GENOME_SIZE_MAX
+      pct: 0.10
+  actions:
+    - field: MMS103
+      value: "PASS"
+
+# MMS109 specific rules
+- id: "MMS109_FLAG_NOVEL_ALLELE"
+  description: "Novel allele detected"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: true
+    - field: TEST_ST
+      operator: "=="
+      value: false
+    - field: TEST_MLST_ALLELES
+      operator: "=="
+      value: "NOVEL ALLELE"
+  actions:
+    - field: MMS109
+      value: "FLAG"
+
+- id: "MMS109_PARTIAL"
+  description: "Partial MLST scheme, requires manual review"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: true
+    - field: TEST_ST
+      operator: "=="
+      value: false
+    - field: TEST_MLST_ALLELES
+      operator: "contains"
+      value: "PARTIAL"
+  actions:
+    - field: MMS109
+      value: "FLAG"
+
+# - id: "QC001"
+#   description: "FAIL due to low coverage"
+#   conditions:
+#     - field: TEST_COVERAGE
+#       operator: "=="
+#       value: false
+#     - field: COVERAGE
+#       operator: "<"
+#       value: 40
+#   actions:
+#     - field: MMS103
+#       value: "FAIL"
+#     - field: MMS109
+#       value: "FAIL"
+#     - field: TEST_QC
+#       value: "FAIL"
+#     - field: COMMENT
+#       value: "FAIL due to low coverage"
+
+# - id: "QC002"
+#   description: "Manual PASS as kmer and/or assembly genome size within 10%"
+#   conditions:
+#     - field: TEST_GENOME_SIZE_KMER
+#       operator: "=="
+#       value: false
+#     - field: GENOME_SIZE_KMER
+#       operator: "between_pct"
+#       min_field: GENOME_SIZE_MIN
+#       max_field: GENOME_SIZE_MAX
+#       pct: 0.10
+#   actions:
+#     - field: MMS103
+#       value: "PASS"
+#     - field: MMS109
+#       value: "PASS"
+#     - field: TEST_QC
+#       value: "PASS"
+#     - field: COMMENT
+#       value: "Manual PASS as kmer and/or assembly genome size within 10% of acceptable range"
