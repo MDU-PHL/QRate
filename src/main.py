@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# filepath: /home/unimelb.edu.au/himals/onedrive-unimelb/1_projects/pipelines/QCheck/src/main.py
 
 import argparse
 import os

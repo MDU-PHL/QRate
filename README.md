@@ -20,14 +20,15 @@ This repo contains scripts to process `standard_bacteria_qc.csv` file obtained f
 
 ## Usage
 To run the QC Curation Tool, use the following command:
-```
-python src/main.py --input <path_to_input_csv> --output <path_to_output_csv>
+
+```sh
+python src/main.py --input <path_to_input_csv> --output <path_to_output_csv> --rules config/rules.yaml
 ```
 
 ### Command-Line Arguments
 - `--input`: Path to the input CSV file containing QC results.
 - `--output`: Path where the updated QC results will be saved.
-- TODO: `--rules`: rules configuration file (default: `config/rules.yaml`).
+- `--rules`: rules configuration file (default: `config/rules.yaml`).
 
 ## Configuration
 The curation rules and mappings are defined in the YAML files located in the `config` directory. You can modify these files to adjust the curation logic as needed.
