@@ -9,8 +9,8 @@ This repo contains scripts to process `standard_bacteria_qc.csv` file obtained f
 ## Installation
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd qc-curation-tool
+   git clone https://github.com/MDU-PHL/QCheck.git
+   cd QCheck
    ```
 
 2. Install the required dependencies:
