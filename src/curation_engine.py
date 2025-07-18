@@ -97,7 +97,9 @@ def determine_final_result(mms103_result, mms109_result, original_row):
     Logic:
     - MMS103 rules only affect MMS103
     - MMS109 rules only affect MMS109
+    - FAIL propagation: If either MMS103 or MMS109 is FAIL (due to matched rules), both become FAIL
     - TEST_QC = FAIL if either MMS103 or MMS109 is FAIL, otherwise PASS
+    - Original values are preserved when no rules are matched
     """
     mms103_status = mms103_result['status']
     mms109_status = mms109_result['status']
@@ -107,11 +109,21 @@ def determine_final_result(mms103_result, mms109_result, original_row):
     original_mms109 = original_row.get('MMS109', 'PASS')
     original_comment = original_row.get('COMMENT', '')
     
-    # Determine final MMS103 value
+    # Determine final MMS103 value (only if rules were matched)
     final_mms103 = mms103_status if mms103_status is not None else original_mms103
     
-    # Determine final MMS109 value
+    # Determine final MMS109 value (only if rules were matched)
     final_mms109 = mms109_status if mms109_status is not None else original_mms109
+    
+    # FAIL propagation logic: Only apply if at least one rule was matched and resulted in FAIL
+    # Check if any rule was actually matched (not just preserved original values)
+    mms103_rule_matched = mms103_status is not None
+    mms109_rule_matched = mms109_status is not None
+    
+    # Apply FAIL propagation only if rules were matched and resulted in FAIL
+    if (mms103_rule_matched and final_mms103 == 'FAIL') or (mms109_rule_matched and final_mms109 == 'FAIL'):
+        final_mms103 = 'FAIL'
+        final_mms109 = 'FAIL'
     
     # Determine TEST_QC based on final MMS103 and MMS109 values
     # TEST_QC = FAIL if either MMS103 or MMS109 is FAIL, otherwise PASS
@@ -168,7 +180,10 @@ class CurationEngine:
         result_row['TEST_QC'] = final_result['test_qc']
         result_row['COMMENT'] = final_result['comment']
         
-        return result_row, final_result if self.verbose else result_row
+        if self.verbose:
+            return result_row, final_result
+        else:
+            return result_row
 
     def log_curation_changes(self, original_row, curated_row, rule_details=None):
         """Log changes made during curation if verbose mode is enabled."""

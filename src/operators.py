@@ -98,6 +98,70 @@ def evaluate_condition(row, condition):
         
         compatible_species = mapping[scheme]
         return species_obs in compatible_species
+    
+    elif operator == "genus_level_match":
+        # Special operator to check if SPECIES_OBS matches at genus level with SPECIES_EXP
+        # when SPECIES_EXP is in "<genus> species" format
+        species_obs = row.get('SPECIES_OBS', '').strip()
+        species_exp = row.get('SPECIES_EXP', '').strip()
         
+        # Extract genus from SPECIES_EXP (first word)
+        genus_exp = species_exp.split()[0] if species_exp else ''
+        
+        # Extract genus from SPECIES_OBS (first word)
+        genus_obs = species_obs.split()[0] if species_obs else ''
+        
+        # Check if genus matches (case-insensitive)
+        return genus_exp.lower() == genus_obs.lower() if genus_exp and genus_obs else False
+    
+    elif operator == "species_subspecies_match":
+        # SPECIES_EXP contains "ssp" and SPECIES_OBS matches the base species part
+        # e.g., "Salmonella enterica ssp enterica" vs "Salmonella enterica"
+        species_obs = row.get('SPECIES_OBS', '').strip()
+        species_exp = row.get('SPECIES_EXP', '').strip()
+        
+        # Check if SPECIES_EXP contains "ssp"
+        if " ssp " not in species_exp.lower():
+            return False
+        
+        # Extract the base species part (everything before " ssp ")
+        base_species = species_exp.split(" ssp ")[0].strip()
+        
+        # Check if SPECIES_OBS matches the base species (case-insensitive)
+        return species_obs.lower() == base_species.lower()
+    
+    elif operator == "species_different_genus_match":
+        # Both species are specific (not generic), have same genus, but are different species
+        # Excludes cases where either contains "species" or "ssp"
+        species_obs = row.get('SPECIES_OBS', '').strip()
+        species_exp = row.get('SPECIES_EXP', '').strip()
+        
+        # Both should not contain "species" or "ssp"
+        if (" species" in species_obs.lower() or " species" in species_exp.lower() or
+            " ssp " in species_obs.lower() or " ssp " in species_exp.lower()):
+            return False
+        
+        # Extract genus from both
+        genus_obs = species_obs.split()[0] if species_obs else ''
+        genus_exp = species_exp.split()[0] if species_exp else ''
+        
+        # Check if genus matches but species are different
+        return (genus_obs and genus_exp and 
+                genus_obs.lower() == genus_exp.lower() and 
+                species_obs.lower() != species_exp.lower())
+    
+    elif operator == "species_genus_mismatch":
+        # SPECIES_EXP and SPECIES_OBS have different genera (complete mismatch)
+        species_obs = row.get('SPECIES_OBS', '').strip()
+        species_exp = row.get('SPECIES_EXP', '').strip()
+        
+        # Extract genus from both
+        genus_obs = species_obs.split()[0] if species_obs else ''
+        genus_exp = species_exp.split()[0] if species_exp else ''
+        
+        # Check if genera are different (case-insensitive)
+        return (genus_obs and genus_exp and 
+                genus_obs.lower() != genus_exp.lower())
+                        
     # Unrecognized operator
     return False
