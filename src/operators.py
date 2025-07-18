@@ -80,6 +80,24 @@ def evaluate_condition(row, condition):
             
         except (ValueError, TypeError):
             return False
-            
+    elif operator == "species_scheme_compatible":
+        # Special operator to check if SPECIES_OBS is compatible with SCHEME
+        # This requires loading the species scheme mapping
+        import yaml
+        try:
+            with open("config/species_scheme_mapping.yaml", 'r') as f:
+                mapping = yaml.safe_load(f)
+        except:
+            return False
+        
+        species_obs = row.get('SPECIES_OBS', '')
+        scheme = row.get('SCHEME', '')
+        
+        if not mapping or scheme not in mapping:
+            return False
+        
+        compatible_species = mapping[scheme]
+        return species_obs in compatible_species
+        
     # Unrecognized operator
     return False

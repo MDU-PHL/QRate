@@ -11,10 +11,6 @@
   actions:
     - field: MMS103
       value: "FAIL"
-    - field: MMS109
-      value: "FAIL"
-    - field: TEST_QC
-      value: "FAIL"
     - field: COMMENT
       value: "FAIL due to low coverage"
 
@@ -32,10 +28,25 @@
   actions:
     - field: MMS103
       value: "PASS"
+    - field: COMMENT
+      value: "Manual PASS as KMER genome size within 10% of acceptable range"
 
 # MMS109 specific rules
+- id: "MMS109_SCHEME_COMPATIBLE"
+  description: "Manual PASS when MLST scheme is appropriate for species despite failed scheme test"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: false
+    - field: SPECIES_OBS
+      operator: "species_scheme_compatible"
+      value: true
+  actions:
+    - field: COMMENT
+      value: "MLST scheme appropriate for SPECIES_OBS"  
+
 - id: "MMS109_FLAG_NOVEL_ALLELE"
-  description: "Novel allele detected"
+  description: "Novel allele detected when TEST_SCHEME is true"
   conditions:
     - field: TEST_SCHEME
       operator: "=="
@@ -49,9 +60,32 @@
   actions:
     - field: MMS109
       value: "FLAG"
+    - field: COMMENT
+      value: "NOVEL ALLELE resulted in no ST"
+
+- id: "MMS109_FLAG_NOVEL_ALLELE_COMPATIBLE"
+  description: "Novel allele detected when species is compatible with scheme"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: false
+    - field: SPECIES_OBS
+      operator: "species_scheme_compatible"
+      value: true
+    - field: TEST_ST
+      operator: "=="
+      value: false
+    - field: TEST_MLST_ALLELES
+      operator: "=="
+      value: "NOVEL ALLELE"
+  actions:
+    - field: MMS109
+      value: "FLAG"
+    - field: COMMENT
+      value: "NOVEL ALLELE resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
 
 - id: "MMS109_PARTIAL"
-  description: "Partial MLST scheme, requires manual review"
+  description: "Partial MLST scheme when TEST_SCHEME is true"
   conditions:
     - field: TEST_SCHEME
       operator: "=="
@@ -65,43 +99,48 @@
   actions:
     - field: MMS109
       value: "FLAG"
+    - field: COMMENT
+      value: "PARTIAL MLST scheme resulted in no ST"
 
-# - id: "QC001"
-#   description: "FAIL due to low coverage"
-#   conditions:
-#     - field: TEST_COVERAGE
-#       operator: "=="
-#       value: false
-#     - field: COVERAGE
-#       operator: "<"
-#       value: 40
-#   actions:
-#     - field: MMS103
-#       value: "FAIL"
-#     - field: MMS109
-#       value: "FAIL"
-#     - field: TEST_QC
-#       value: "FAIL"
-#     - field: COMMENT
-#       value: "FAIL due to low coverage"
+- id: "MMS109_PARTIAL_COMPATIBLE"
+  description: "Partial MLST scheme when species is compatible with scheme"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: false
+    - field: SPECIES_OBS
+      operator: "species_scheme_compatible"
+      value: true
+    - field: TEST_ST
+      operator: "=="
+      value: false
+    - field: TEST_MLST_ALLELES
+      operator: "contains"
+      value: "PARTIAL"
+  actions:
+    - field: MMS109
+      value: "FLAG"
+    - field: COMMENT
+      value: "PARTIAL MLST scheme resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
 
-# - id: "QC002"
-#   description: "Manual PASS as kmer and/or assembly genome size within 10%"
-#   conditions:
-#     - field: TEST_GENOME_SIZE_KMER
-#       operator: "=="
-#       value: false
-#     - field: GENOME_SIZE_KMER
-#       operator: "between_pct"
-#       min_field: GENOME_SIZE_MIN
-#       max_field: GENOME_SIZE_MAX
-#       pct: 0.10
-#   actions:
-#     - field: MMS103
-#       value: "PASS"
-#     - field: MMS109
-#       value: "PASS"
-#     - field: TEST_QC
-#       value: "PASS"
-#     - field: COMMENT
-#       value: "Manual PASS as kmer and/or assembly genome size within 10% of acceptable range"
+- id: "MMS109_PASS_SCHEME_COMPATIBLE_MANUAL_PASS"
+  description: "Manual PASS when MLST scheme is appropriate for species despite failed scheme test"
+  conditions:
+    - field: TEST_SCHEME
+      operator: "=="
+      value: false
+    - field: TEST_ST
+      operator: "=="
+      value: true
+    - field: TEST_MLST_ALLELES
+      operator: "=="
+      value: "COMPLETE"
+    - field: SPECIES_OBS
+      operator: "species_scheme_compatible"
+      value: true
+  actions:
+    - field: MMS109
+      value: "PASS"
+    - field: COMMENT
+      value: "MMS109 Manual PASS as MLST scheme appropriate for SPECIES_OBS"  
+

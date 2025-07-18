@@ -1,13 +1,13 @@
 from operators import evaluate_condition
+import yaml
+import os
 
-def evaluate_mms_rule(row, rules, field):
-    relevant_rules = [rule for rule in rules if field in str(rule)]
-    for rule in relevant_rules:
-        if check_rule_conditions(row, rule):
-            action = get_rule_action(rule, field)
-            comment = generate_comment(rule, field, action)
-            return {'status': action, 'comment': comment, 'rule_id': rule.get('id', 'unknown')}
-    return {'status': 'PASS', 'comment': '', 'rule_id': 'default'}
+def has_field_action(rule, field):
+    """Check if a rule has an action for the specified field."""
+    for action in rule.get('actions', []):
+        if action.get('field') == field:
+            return True
+    return False
 
 def check_rule_conditions(row, rule):
     for condition in rule.get('conditions', []):
@@ -21,99 +21,118 @@ def get_rule_action(rule, field):
             return action.get('value')
     return None
 
-def generate_comment(rule, field, action):
-    base_comment = rule.get('description', '')
-    if action == 'FAIL':
-        return f"{field} FAIL due to {base_comment}"
-    elif action == 'FLAG':
-        return f"{field} FLAG as {base_comment}"
-    elif action == 'PASS':
-        return f"{field} Manual PASS as {base_comment}"
-    return base_comment
+def get_rule_comment(rule):
+    """Extract COMMENT value from rule actions."""
+    for action in rule.get('actions', []):
+        if action.get('field') == 'COMMENT':
+            return action.get('value', '')
+    return ''
 
-def determine_final_result(mms103_result, mms109_result):
+def evaluate_mms_rule(row, rules, field, verbose=False):
+    """Evaluate all matching rules for a field and aggregate results."""
+    relevant_rules = [rule for rule in rules if has_field_action(rule, field)]
+    matched_rules = []
+    rule_evaluations = []
+    
+    for rule in relevant_rules:
+        rule_met = check_rule_conditions(row, rule)
+        rule_evaluations.append({
+            'rule_id': rule.get('id', 'unknown'),
+            'description': rule.get('description', ''),
+            'conditions_met': rule_met
+        })
+        
+        if rule_met:
+            action = get_rule_action(rule, field)
+            comment = get_rule_comment(rule)
+            if action:  # Only add if there's an action for this field
+                matched_rules.append({
+                    'status': action,
+                    'comment': comment,
+                    'rule_id': rule.get('id', 'unknown')
+                })
+    
+    if matched_rules:
+        # Aggregate multiple matching rules
+        result = aggregate_rule_results(matched_rules)
+        result['rule_evaluations'] = rule_evaluations
+        return result
+    
+    # No rules matched - return None to indicate no change should be made
+    return {'status': None, 'comment': '', 'rule_id': 'no_match', 'rule_evaluations': rule_evaluations}
+
+
+def aggregate_rule_results(matched_rules):
+    """Aggregate multiple rule results, prioritizing FAIL > FLAG > PASS.
+    If FAIL is present, only aggregate FAIL comments. Otherwise, aggregate FLAG and PASS comments in priority order.
+    """
+    # Sort by priority: FAIL > FLAG > PASS
+    priority_order = {'FAIL': 0, 'FLAG': 1, 'PASS': 2}
+    sorted_rules = sorted(matched_rules, key=lambda x: priority_order.get(x['status'], 3))
+    final_status = sorted_rules[0]['status']
+
+    if final_status == 'FAIL':
+        # Only aggregate FAIL comments and rule_ids
+        comments = [rule['comment'] for rule in matched_rules if rule['status'] == 'FAIL' and rule['comment']]
+        rule_ids = [rule['rule_id'] for rule in matched_rules if rule['status'] == 'FAIL']
+    else:
+        # Aggregate FLAG and PASS comments in priority order
+        comments = [rule['comment'] for rule in sorted_rules if rule['status'] in ['FLAG', 'PASS'] and rule['comment']]
+        rule_ids = [rule['rule_id'] for rule in sorted_rules if rule['status'] in ['FLAG', 'PASS']]
+
+    combined_comment = '; '.join(comments)
+
+    return {
+        'status': final_status,
+        'comment': combined_comment,
+        'rule_id': ','.join(rule_ids)
+    }
+
+def determine_final_result(mms103_result, mms109_result, original_row):
     """
     Determine final result based on MMS103 and MMS109 results.
-        
+    Uses comments from rules.yaml instead of generating new ones.
+    Preserves original values when no rules are matched.
+    
     Logic:
-    1. If either is FAIL, final result is FAIL with single comment
-    2. If both are PASS, final result is PASS
-    3. If Manual PASS and FLAG, append both comments
+    - MMS103 rules only affect MMS103
+    - MMS109 rules only affect MMS109
+    - TEST_QC = FAIL if either MMS103 or MMS109 is FAIL, otherwise PASS
     """
     mms103_status = mms103_result['status']
     mms109_status = mms109_result['status']
-        
-    # If FAIL, just a single comment irrespective of MMS103 or MMS109
-    if mms103_status == 'FAIL' or mms109_status == 'FAIL':
-        fail_comment = mms103_result['comment'] if mms103_status == 'FAIL' else mms109_result['comment']
-        return {
-            'mms103': 'FAIL',
-            'mms109': 'FAIL',
-            'test_qc': 'FAIL',
-            'comment': fail_comment
-            }
-        
-    # If Manual PASS and FLAG, append both comments
-    if ((mms103_status == 'PASS' and mms109_status == 'FLAG') or 
-            (mms103_status == 'FLAG' and mms109_status == 'PASS')):
-            
-            comments = []
-            if mms103_result['comment']:
-                comments.append(f"MMS103: {mms103_result['comment']}")
-            if mms109_result['comment']:
-                comments.append(f"MMS109: {mms109_result['comment']}")
-            
-            combined_comment = "; ".join(comments)
-            
-            return {
-                'mms103': mms103_status,
-                'mms109': mms109_status,
-                'test_qc': 'PASS',  # Overall PASS if no failures
-                'comment': combined_comment
-            }
-        
-    # Both FLAG
-    if mms103_status == 'FLAG' and mms109_status == 'FLAG':
-            comments = []
-            if mms103_result['comment']:
-                comments.append(f"MMS103: {mms103_result['comment']}")
-            if mms109_result['comment']:
-                comments.append(f"MMS109: {mms109_result['comment']}")
-            
-            combined_comment = "; ".join(comments)
-            
-            return {
-                'mms103': 'FLAG',
-                'mms109': 'FLAG',
-                'test_qc': 'FLAG',
-                'comment': combined_comment
-            }
-        
-    # Both PASS
-    if mms103_status == 'PASS' and mms109_status == 'PASS':
-            # Use the comment from whichever rule was applied, or combine if both have comments
-            comments = []
-            if mms103_result['comment']:
-                comments.append(mms103_result['comment'])
-            if mms109_result['comment'] and mms109_result['comment'] != mms103_result['comment']:
-                comments.append(mms109_result['comment'])
-            
-            combined_comment = "; ".join(comments) if comments else ""
-            
-            return {
-                'mms103': 'PASS',
-                'mms109': 'PASS',
-                'test_qc': 'PASS',
-                'comment': combined_comment
-            }
-        
-    # Default case
+    
+    # Get original values to preserve when no rules match
+    original_mms103 = original_row.get('MMS103', 'PASS')
+    original_mms109 = original_row.get('MMS109', 'PASS')
+    original_comment = original_row.get('COMMENT', '')
+    
+    # Determine final MMS103 value
+    final_mms103 = mms103_status if mms103_status is not None else original_mms103
+    
+    # Determine final MMS109 value
+    final_mms109 = mms109_status if mms109_status is not None else original_mms109
+    
+    # Determine TEST_QC based on final MMS103 and MMS109 values
+    # TEST_QC = FAIL if either MMS103 or MMS109 is FAIL, otherwise PASS
+    final_test_qc = 'FAIL' if final_mms103 == 'FAIL' or final_mms109 == 'FAIL' else 'PASS'
+    
+    # Determine final comment - combine comments from matched rules
+    comments = []
+    if mms103_result['comment'] and mms103_status is not None:
+        comments.append(mms103_result['comment'])
+    if mms109_result['comment'] and mms109_status is not None:
+        comments.append(mms109_result['comment'])
+    
+    # Use combined comments if available, otherwise preserve original
+    final_comment = '; '.join(comments) if comments else original_comment
+    
     return {
-            'mms103': mms103_status,
-            'mms109': mms109_status,
-            'test_qc': 'PASS',
-            'comment': ""
-        }
+        'mms103': final_mms103,
+        'mms109': final_mms109,
+        'test_qc': final_test_qc,
+        'comment': final_comment
+    }
 
 class CurationEngine:
     def __init__(self, rules, verbose=False):
@@ -123,31 +142,83 @@ class CurationEngine:
     def curate_data(self, qc_data):
         processed_data = []
         for row in qc_data:
-            original_row = row.copy()
-            curated_row = self.curate_single_entry(row)
-            processed_data.append(curated_row)
             if self.verbose:
-                self.log_curation_changes(original_row, curated_row)
+                curated_row, rule_details = self.curate_single_entry(row)
+                processed_data.append(curated_row)
+                self.log_curation_changes(row, curated_row, rule_details)
+            else:
+                curated_row = self.curate_single_entry(row)
+                processed_data.append(curated_row)
         return processed_data
 
     def curate_single_entry(self, row):
-        mms103_result = evaluate_mms_rule(row, self.rules, 'MMS103')
-        mms109_result = evaluate_mms_rule(row, self.rules, 'MMS109')
-        final_result = determine_final_result(mms103_result, mms109_result)
-        row['MMS103'] = final_result['mms103']
-        row['MMS109'] = final_result['mms109']
-        row['TEST_QC'] = final_result['test_qc']
-        row['COMMENT'] = final_result['comment']
-        return row
+        mms103_result = evaluate_mms_rule(row, self.rules, 'MMS103', verbose=self.verbose)
+        mms109_result = evaluate_mms_rule(row, self.rules, 'MMS109', verbose=self.verbose)
+        final_result = determine_final_result(mms103_result, mms109_result, row)
+        
+        # Store rule evaluations for verbose logging
+        if self.verbose:
+            final_result['mms103_evaluations'] = mms103_result.get('rule_evaluations', [])
+            final_result['mms109_evaluations'] = mms109_result.get('rule_evaluations', [])
+        
+        # Apply results to row
+        result_row = row.copy()
+        result_row['MMS103'] = final_result['mms103']
+        result_row['MMS109'] = final_result['mms109']
+        result_row['TEST_QC'] = final_result['test_qc']
+        result_row['COMMENT'] = final_result['comment']
+        
+        return result_row, final_result if self.verbose else result_row
 
-    def log_curation_changes(self, original_row, curated_row):
+    def log_curation_changes(self, original_row, curated_row, rule_details=None):
         """Log changes made during curation if verbose mode is enabled."""
         isolate = original_row.get('ISOLATE', 'unknown')
         
+        print(f"\n=== Processing Sample: {isolate} ===")
+        
+        # Log rule evaluations if available
+        if rule_details:
+            print("Rule Evaluations:")
+            
+            # MMS103 rules
+            if rule_details.get('mms103_evaluations'):
+                print("  MMS103 Rules:")
+                matched_any_mms103 = False
+                for eval_info in rule_details['mms103_evaluations']:
+                    status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    print(f"    - {eval_info['rule_id']}: {status}")
+                    print(f"      Description: {eval_info['description']}")
+                    if eval_info['conditions_met']:
+                        matched_any_mms103 = True
+                
+                if not matched_any_mms103:
+                    print("    → No MMS103 rules matched - original value preserved")
+            
+            # MMS109 rules
+            if rule_details.get('mms109_evaluations'):
+                print("  MMS109 Rules:")
+                matched_any_mms109 = False
+                for eval_info in rule_details['mms109_evaluations']:
+                    status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    print(f"    - {eval_info['rule_id']}: {status}")
+                    print(f"      Description: {eval_info['description']}")
+                    if eval_info['conditions_met']:
+                        matched_any_mms109 = True
+                
+                if not matched_any_mms109:
+                    print("    → No MMS109 rules matched - original value preserved")
+        
+        # Log field changes (compare original to final)
         changes = []
         for field in ['MMS103', 'MMS109', 'TEST_QC', 'COMMENT']:
             if original_row.get(field) != curated_row.get(field):
                 changes.append(f"{field}: {original_row.get(field)} -> {curated_row.get(field)}")
         
         if changes:
-            print(f"Sample {isolate}: {'; '.join(changes)}")
+            print("Final Field Changes:")
+            for change in changes:
+                print(f"  - {change}")
+        else:
+            print("No field changes made")
+        
+        print("-" * 50)
