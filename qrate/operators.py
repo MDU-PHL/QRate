@@ -171,6 +171,36 @@ def evaluate_condition(row, condition):
         # Check if genera are different (case-insensitive)
         return (genus_obs and genus_exp and 
                 genus_obs.lower() != genus_exp.lower())
+    
+    elif operator == "species_synonym_match":
+        # Special operator to check if SPECIES_OBS is a synonym of SPECIES_EXP
+        # This requires loading the species synonym mapping
+        import yaml
+        import os
+        import pkg_resources
+        
+        try:
+            # Try to find config file relative to package
+            try:
+                config_path = pkg_resources.resource_filename('qrate', 'config/species_synonym_mapping.yaml')
+            except:
+                config_path = os.path.join(os.path.dirname(__file__), 'config', 'species_synonym_mapping.yaml')
+                
+            with open(config_path, 'r') as f:
+                mapping = yaml.safe_load(f)
+        except:
+            return False
+        
+        species_obs = row.get('SPECIES_OBS', '').strip()
+        species_exp = row.get('SPECIES_EXP', '').strip()
+        
+        if not mapping or 'synonyms' not in mapping:
+            return False
+        
+        synonyms = mapping['synonyms']
+        
+        # Check if SPECIES_OBS is a synonym for SPECIES_EXP
+        return synonyms.get(species_obs) == species_exp
                         
     # Unrecognized operator
     return False

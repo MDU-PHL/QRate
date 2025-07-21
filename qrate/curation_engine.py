@@ -33,7 +33,9 @@ def evaluate_mms_rule(row, rules, field, verbose=False):
     relevant_rules = [rule for rule in rules if has_field_action(rule, field)]
     matched_rules = []
     rule_evaluations = []
+    skipped_rules = set()
     
+    # First pass: identify which rules are met and which should be skipped
     for rule in relevant_rules:
         rule_met = check_rule_conditions(row, rule)
         rule_evaluations.append({
@@ -43,6 +45,11 @@ def evaluate_mms_rule(row, rules, field, verbose=False):
         })
         
         if rule_met:
+            
+            # If this rule is met, add any rules it wants to skip to the skip set
+            skip_list = rule.get('skip_rules', [])
+            skipped_rules.update(skip_list)
+            
             action = get_rule_action(rule, field)
             comment = get_rule_comment(rule)
             if action:  # Only add if there's an action for this field
@@ -52,9 +59,28 @@ def evaluate_mms_rule(row, rules, field, verbose=False):
                     'rule_id': rule.get('id', 'unknown')
                 })
     
-    if matched_rules:
-        # Aggregate multiple matching rules
-        result = aggregate_rule_results(matched_rules)
+    # if matched_rules:
+    #     # Aggregate multiple matching rules
+    #     result = aggregate_rule_results(matched_rules)
+    #     result['rule_evaluations'] = rule_evaluations
+    #     return result
+    
+    # Second pass: filter out skipped rules
+    filtered_matched_rules = []
+    for rule_result in matched_rules:
+        if rule_result['rule_id'] not in skipped_rules:
+            filtered_matched_rules.append(rule_result)
+        elif verbose:
+            print(f"    → Rule {rule_result['rule_id']} skipped due to skip_rules directive")
+    
+    # Update rule evaluations to show skipped status
+    for eval_info in rule_evaluations:
+        if eval_info['rule_id'] in skipped_rules and eval_info['conditions_met']:
+            eval_info['skipped'] = True
+    
+    if filtered_matched_rules:
+        # Aggregate remaining matching rules
+        result = aggregate_rule_results(filtered_matched_rules)
         result['rule_evaluations'] = rule_evaluations
         return result
     
@@ -200,11 +226,20 @@ class CurationEngine:
                 print("  MMS103 Rules:")
                 matched_any_mms103 = False
                 for eval_info in rule_details['mms103_evaluations']:
-                    status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    if eval_info.get('skipped'):
+                        status = "⚠️ SKIPPED (conditions met but rule skipped)"
+                    elif eval_info['conditions_met']:
+                        status = "✓ MET"
+                        matched_any_mms103 = True
+                    else:
+                        status = "✗ NOT MET"
                     print(f"    - {eval_info['rule_id']}: {status}")
                     print(f"      Description: {eval_info['description']}")
-                    if eval_info['conditions_met']:
-                        matched_any_mms103 = True
+                    # status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    # print(f"    - {eval_info['rule_id']}: {status}")
+                    # print(f"      Description: {eval_info['description']}")
+                    # if eval_info['conditions_met']:
+                    #     matched_any_mms103 = True
                 
                 if not matched_any_mms103:
                     print("    → No MMS103 rules matched - original value preserved")
@@ -214,11 +249,20 @@ class CurationEngine:
                 print("  MMS109 Rules:")
                 matched_any_mms109 = False
                 for eval_info in rule_details['mms109_evaluations']:
-                    status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    if eval_info.get('skipped'):
+                        status = "⚠️ SKIPPED (conditions met but rule skipped)"
+                    elif eval_info['conditions_met']:
+                        status = "✓ MET"
+                        matched_any_mms109 = True
+                    else:
+                        status = "✗ NOT MET"
                     print(f"    - {eval_info['rule_id']}: {status}")
                     print(f"      Description: {eval_info['description']}")
-                    if eval_info['conditions_met']:
-                        matched_any_mms109 = True
+                    # status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
+                    # print(f"    - {eval_info['rule_id']}: {status}")
+                    # print(f"      Description: {eval_info['description']}")
+                    # if eval_info['conditions_met']:
+                    #     matched_any_mms109 = True
                 
                 if not matched_any_mms109:
                     print("    → No MMS109 rules matched - original value preserved")

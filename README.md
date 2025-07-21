@@ -85,7 +85,15 @@ The curation rules and mappings are defined in YAML files. The package includes 
       value: "FAIL"
     - field: COMMENT
       value: "Reason for failure"
+   skip_rules:  # Optional: list of rule IDs to skip if this rule matches
+    - OTHER_RULE_ID
 ```
+
+#### Rule Precedence and Skipping
+
+- If a rule matches and has a `skip_rules` field, any rules listed there will be ignored even if their conditions are met
+- This allows for implementing rule precedence (e.g., synonym matches take precedence over genus mismatches)
+- Skipped rules will be shown in verbose output with a "SKIPPED" status
 
 ### Supported Operators
 

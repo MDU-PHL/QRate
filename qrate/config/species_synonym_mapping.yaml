@@ -1,0 +1,14 @@
+# Species Synonym Mapping
+# Maps SPECIES_OBS (observed) to SPECIES_EXP (expected) for known synonyms
+# Format: species_obs -> species_exp
+
+synonyms:
+  "Nakaseomyces glabratus": "Candida glabrata"
+  "Kluyveromyces marxianus": "Candida kefyr"
+  "Metamycoplasma hominis": "Mycoplasma hominis"
+  "Candida krusei": "Pichia kudriavzevii"
+  "Mycobacterium chelonae": "Mycobacteroides chelonae"
+  "Cutibacterium acnes": "Propionibacterium acnes"
+  
+# You can add more synonym mappings here as needed
+
