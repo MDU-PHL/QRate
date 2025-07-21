@@ -8,6 +8,7 @@ import csv
 import pkg_resources
 from .csv_handler import read_csv, write_csv
 from .curation_engine import CurationEngine
+from . import __version__
 
 def find_config_file(config_name):
     """Find configuration file, trying package resources first, then relative paths."""
@@ -30,12 +31,17 @@ def find_config_file(config_name):
 
 def main():
     parser = argparse.ArgumentParser(description="QRate - QC data curation tool for bacterial genomics")
-    parser.add_argument("input_file", help="Path to input CSV file")
+    parser.add_argument("input_file", nargs='?', help="Path to input CSV file")
     parser.add_argument("-o", "--output", help="Path to output CSV file (default: input file with .curated suffix)")
     parser.add_argument("-r", "--rules", help="Path to rules YAML file", default=None)
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("--version", action="version", version=f"QRate {__version__}")
     
     args = parser.parse_args()
+    
+    # Check if input file is provided (required unless --version is used)
+    if not args.input_file:
+        parser.error("the following arguments are required: input_file")
     
     # Set default output file if not provided
     if not args.output:
