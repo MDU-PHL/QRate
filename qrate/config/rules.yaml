@@ -1,6 +1,49 @@
 # rules are determined with what fields are present in the actions section
 # MMS103 specific rules
 
+- id: "MMS103_FAIL_LOW_COVERAGE"
+  description: "Low coverage detected"
+  conditions:
+    - field: TEST_COVERAGE
+      operator: "=="
+      value: false
+    - field: COVERAGE
+      operator: "<"
+      value: 40
+  actions:
+    - field: MMS103
+      value: "FAIL"
+    - field: COMMENT
+      value: "FAIL due to low coverage"
+
+
+- id: "MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE"
+  description: "FAIL when both KMER and ASSEMBLY genome sizes are outside 10% of acceptable range"
+  conditions:
+    - field: TEST_GENOME_SIZE_KMER
+      operator: "=="
+      value: false
+    - field: TEST_GENOME_SIZE_ASSEMBLY
+      operator: "=="
+      value: false
+    - field: GENOME_SIZE_KMER
+      operator: "outside_pct"
+      min_field: GENOME_SIZE_MIN
+      max_field: GENOME_SIZE_MAX
+      pct: 0.10
+      value: true  # true means outside range
+    - field: GENOME_SIZE_ASSEMBLY
+      operator: "outside_pct"
+      min_field: GENOME_SIZE_MIN
+      max_field: GENOME_SIZE_MAX
+      pct: 0.10
+      value: true  # true means outside range
+  actions:
+    - field: MMS103
+      value: "FAIL"
+    - field: COMMENT
+      value: "FAIL due to kmer and assembly genome size being outside acceptable the 10% acceptable range"
+
 - id: "MMS103_PASS_GENOME_SIZE_WITHIN_RANGE"
   description: "PASS when both KMER and ASSEMBLY genome sizes are within 10% of acceptable range"
   conditions:
@@ -30,84 +73,47 @@
   # skip_rules:
   #   - MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE
 
-- id: "MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE"
-  description: "FAIL when both KMER and ASSEMBLY genome sizes are outside 10% of acceptable range"
+- id: "MMS103_PASS_GENOME_SIZE_KMER_WITHIN_RANGE"
+  description: "PASS when KMER genome size is within 10% of acceptable range and TEST_GENOME_SIZE_ASSEMBLY size is TRUE"
   conditions:
     - field: TEST_GENOME_SIZE_KMER
       operator: "=="
       value: false
-    - field: TEST_GENOME_SIZE_ASSEMBLY
-      operator: "=="
-      value: false
+    # - field: TEST_GENOME_SIZE_ASSEMBLY
+    #   operator: "=="
+    #   value: true
     - field: GENOME_SIZE_KMER
       operator: "outside_pct"
       min_field: GENOME_SIZE_MIN
       max_field: GENOME_SIZE_MAX
       pct: 0.10
-      value: true  # true means outside range
+      value: false  # false means NOT outside (i.e., within range)
+  actions:
+    - field: MMS103
+      value: "PASS"
+    - field: COMMENT
+      value: "MMS103 Manual PASS due to kmer genome size being within the 10% acceptable range"
+
+- id: "MMS103_PASS_GENOME_ASSEMBLY_SIZE_WITHIN_RANGE"
+  description: "PASS when ASSEMBLY genome size is within 10% of acceptable range and TEST_GENOME_SIZE_KMER size is TRUE"
+  conditions:
+    # - field: TEST_GENOME_SIZE_KMER
+    #   operator: "=="
+    #   value: true
+    - field: TEST_GENOME_SIZE_ASSEMBLY
+      operator: "=="
+      value: false
     - field: GENOME_SIZE_ASSEMBLY
       operator: "outside_pct"
       min_field: GENOME_SIZE_MIN
       max_field: GENOME_SIZE_MAX
       pct: 0.10
-      value: true  # true means outside range
+      value: false  # false means NOT outside (i.e., within range)
   actions:
     - field: MMS103
-      value: "FAIL"
+      value: "PASS"
     - field: COMMENT
-      value: "FAIL due to kmer and assembly genome size being outside acceptable the 10% acceptable range"
-
-- id: "MMS103_FAIL_LOW_COVERAGE"
-  description: "Low coverage detected"
-  conditions:
-    - field: TEST_COVERAGE
-      operator: "=="
-      value: false
-    - field: COVERAGE
-      operator: "<"
-      value: 40
-  actions:
-    - field: MMS103
-      value: "FAIL"
-    - field: COMMENT
-      value: "FAIL due to low coverage"
-
-# - id: "MMS103_FAIL_GENOME_SIZE"
-#   description: "Genome size within acceptable range"
-#   conditions:
-#     - field: TEST_GENOME_SIZE_KMER
-#       operator: "=="
-#       value: false
-#     # - field: GENOME_SIZE_KMER
-#     #   operator: "between_pct"
-#     #   min_field: GENOME_SIZE_MIN
-#     #   max_field: GENOME_SIZE_MAX
-#     #   pct: 0.10
-#     - field: TEST_GENOME_SIZE_ASSEMBLY
-#       operator: "=="
-#       value: false
-#   actions:
-#     - field: MMS103
-#       value: "FAIL"
-#     - field: COMMENT
-#       value: "FAIL due to kmer and assembly genome size being outside accepatble the 10% acceptable range"
-
-# - id: "MMS103_PASS_GENOME_SIZE_KMER"
-#   description: "Genome size within acceptable range"
-#   conditions:
-#     - field: TEST_GENOME_SIZE_KMER
-#       operator: "=="
-#       value: false
-#     - field: GENOME_SIZE_KMER
-#       operator: "between_pct"
-#       min_field: GENOME_SIZE_MIN
-#       max_field: GENOME_SIZE_MAX
-#       pct: 0.10
-#   actions:
-#     - field: MMS103
-#       value: "PASS"
-#     - field: COMMENT
-#       value: "Manual PASS as KMER genome size within 10% of acceptable range"
+      value: "MMS103 Manual PASS due to assembly genome size being within the 10% acceptable range"
 
 - id: "MMS103_PASS_GENUS_MATCH"
   description: "Manual PASS when genus matches between SPECIES_OBS and SPECIES_EXP despite failed species test"

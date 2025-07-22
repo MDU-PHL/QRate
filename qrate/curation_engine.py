@@ -88,9 +88,58 @@ def evaluate_mms_rule(row, rules, field, verbose=False):
     return {'status': None, 'comment': '', 'rule_id': 'no_match', 'rule_evaluations': rule_evaluations}
 
 
+def clean_comment_duplicates(comments, status):
+    """Clean duplicate status prefixes from comments while preserving the first one."""
+    if not comments:
+        return ""
+    
+    # Define all possible prefix patterns to look for (not just the final status)
+    all_prefix_patterns = [
+        # "MMS103 FAIL",
+        # "MMS103 Manual FAIL", 
+        "MMS103 FLAG",
+        # "MMS103 Manual FLAG",
+        # "MMS103 PASS",
+        "MMS103 Manual PASS",
+        # "MMS109 FAIL",
+        # "MMS109 Manual FAIL",
+        "MMS109 FLAG", 
+        # "MMS109 Manual FLAG",
+        # "MMS109 PASS",
+        "MMS109 Manual PASS"
+    ]
+    
+    cleaned_comments = []
+    first_comment = True
+    
+    for comment in comments:
+        if first_comment:
+            # Keep the first comment as-is
+            cleaned_comments.append(comment)
+            first_comment = False
+        else:
+            # Remove any status prefixes from subsequent comments
+            cleaned_comment = comment
+            for pattern in all_prefix_patterns:
+                if cleaned_comment.startswith(pattern):
+                    # Remove the prefix and any following "as " or "due to "
+                    remaining = cleaned_comment[len(pattern):].strip()
+                    if remaining.startswith("as "):
+                        cleaned_comment = remaining
+                    elif remaining.startswith("due to "):
+                        cleaned_comment = remaining[7:]  # Remove "due to "
+                    else:
+                        cleaned_comment = remaining
+                    break
+            cleaned_comments.append(cleaned_comment)
+    
+    return '; '.join(cleaned_comments)
+
+
 def aggregate_rule_results(matched_rules):
     """Aggregate multiple rule results, prioritizing FAIL > FLAG > PASS.
     If FAIL is present, only aggregate FAIL comments. Otherwise, aggregate FLAG and PASS comments in priority order.
+    Clean duplicate status prefixes from comments.
     """
     # Sort by priority: FAIL > FLAG > PASS
     priority_order = {'FAIL': 0, 'FLAG': 1, 'PASS': 2}
@@ -106,7 +155,8 @@ def aggregate_rule_results(matched_rules):
         comments = [rule['comment'] for rule in sorted_rules if rule['status'] in ['FLAG', 'PASS'] and rule['comment']]
         rule_ids = [rule['rule_id'] for rule in sorted_rules if rule['status'] in ['FLAG', 'PASS']]
 
-    combined_comment = '; '.join(comments)
+    # Clean duplicate prefixes from comments
+    combined_comment = clean_comment_duplicates(comments, final_status)
 
     return {
         'status': final_status,

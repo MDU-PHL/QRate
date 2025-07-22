@@ -51,35 +51,6 @@ def evaluate_condition(row, condition):
         # Case-insensitive string matching
         return str(value).lower() in str(field_value).lower()
         
-    # elif operator == "between_pct":
-    #     # Special operator for percentage-based range checking
-    #     min_field = condition.get('min_field')
-    #     max_field = condition.get('max_field')
-    #     pct = float(condition.get('pct', 0.1))  # Default to 10%
-        
-    #     # Handle missing bounds fields
-    #     if min_field not in row or max_field not in row:
-    #         return False
-            
-    #     try:
-    #         # Extract values and convert to float
-    #         min_value = float(row[min_field]) if row[min_field] and row[min_field] != '-' else None
-    #         max_value = float(row[max_field]) if row[max_field] and row[max_field] != '-' else None
-    #         field_value = float(field_value) if field_value else 0
-            
-    #         # Can't calculate range if either bound is missing
-    #         if min_value is None or max_value is None:
-    #             return False
-                
-    #         # Calculate extended range with percentage
-    #         extended_min = min_value * (1 - pct)
-    #         extended_max = max_value * (1 + pct)
-            
-    #         # Check if value is within extended range
-    #         return extended_min <= field_value <= extended_max
-            
-    #     except (ValueError, TypeError):
-    #         return False
     elif operator == "outside_pct":
         # Special operator for checking if values are OUTSIDE percentage-based range 
         min_field = condition.get('min_field')
@@ -120,86 +91,7 @@ def evaluate_condition(row, condition):
             
         except (ValueError, TypeError):
             return False
-    # elif operator == "genome_sizes_outside_pct":
-    #     # Special operator for checking if BOTH KMER and ASSEMBLY genome sizes are OUTSIDE percentage-based range 
-    #     min_field = condition.get('min_field')
-    #     max_field = condition.get('max_field')
-    #     pct = float(condition.get('pct', 0.1))  # Default to 10%
         
-    #     # Handle missing bounds fields
-    #     if min_field not in row or max_field not in row:
-    #         return False
-            
-    #     # Check both GENOME_SIZE_KMER and GENOME_SIZE_ASSEMBLY
-    #     kmer_field = 'GENOME_SIZE_KMER'
-    #     assembly_field = 'GENOME_SIZE_ASSEMBLY'
-        
-    #     if kmer_field not in row or assembly_field not in row:
-    #         return False
-            
-    #     try:
-    #         # Extract values and convert to float
-    #         min_value = float(row[min_field]) if row[min_field] and row[min_field] != '-' else None
-    #         max_value = float(row[max_field]) if row[max_field] and row[max_field] != '-' else None
-    #         kmer_value = float(row[kmer_field]) if row[kmer_field] and row[kmer_field] != '-' else None
-    #         assembly_value = float(row[assembly_field]) if row[assembly_field] and row[assembly_field] != '-' else None
-            
-    #         # Can't calculate range if any values are missing
-    #         if min_value is None or max_value is None or kmer_value is None or assembly_value is None:
-    #             return False
-                
-    #         # Calculate extended range with percentage
-    #         extended_min = min_value * (1 - pct)
-    #         extended_max = max_value * (1 + pct)
-            
-    #         # Check if BOTH kmer and assembly values are OUTSIDE extended range
-    #         kmer_outside = kmer_value < extended_min or kmer_value > extended_max
-    #         assembly_outside = assembly_value < extended_min or assembly_value > extended_max
-            
-    #         return kmer_outside and assembly_outside
-            
-    #     except (ValueError, TypeError):
-    #         return False
-    # elif operator == "genome_sizes_within_pct":
-    #     # Special operator for checking if BOTH KMER and ASSEMBLY genome sizes are WITHIN percentage-based range 
-    #     min_field = condition.get('min_field')
-    #     max_field = condition.get('max_field')
-    #     pct = float(condition.get('pct', 0.1))  # Default to 10%
-        
-    #     # Handle missing bounds fields
-    #     if min_field not in row or max_field not in row:
-    #         return False
-            
-    #     # Check both GENOME_SIZE_KMER and GENOME_SIZE_ASSEMBLY
-    #     kmer_field = 'GENOME_SIZE_KMER'
-    #     assembly_field = 'GENOME_SIZE_ASSEMBLY'
-        
-    #     if kmer_field not in row or assembly_field not in row:
-    #         return False
-            
-    #     try:
-    #         # Extract values and convert to float
-    #         min_value = float(row[min_field]) if row[min_field] and row[min_field] != '-' else None
-    #         max_value = float(row[max_field]) if row[max_field] and row[max_field] != '-' else None
-    #         kmer_value = float(row[kmer_field]) if row[kmer_field] and row[kmer_field] != '-' else None
-    #         assembly_value = float(row[assembly_field]) if row[assembly_field] and row[assembly_field] != '-' else None
-            
-    #         # Can't calculate range if any values are missing
-    #         if min_value is None or max_value is None or kmer_value is None or assembly_value is None:
-    #             return False
-                
-    #         # Calculate extended range with percentage
-    #         extended_min = min_value * (1 - pct)
-    #         extended_max = max_value * (1 + pct)
-            
-    #         # Check if BOTH kmer and assembly values are WITHIN extended range
-    #         kmer_within = extended_min <= kmer_value <= extended_max
-    #         assembly_within = extended_min <= assembly_value <= extended_max
-            
-    #         return kmer_within and assembly_within
-            
-    #     except (ValueError, TypeError):
-    #         return False
     elif operator == "species_scheme_compatible":
         # Special operator to check if SPECIES_OBS is compatible with SCHEME
         # This requires loading the species scheme mapping
