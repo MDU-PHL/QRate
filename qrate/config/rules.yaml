@@ -16,6 +16,21 @@
     - field: COMMENT
       value: "FAIL due to low coverage"
 
+- id: "MMS103_FAIL_LOW_QUALITY"
+  description: "Low quality detected"
+  conditions:
+    - field: TEST_QSCORE
+      operator: "=="
+      value: false
+    - field: AVGQUAL
+      operator: "<"
+      value: 30
+  actions:
+    - field: MMS103
+      value: "FAIL"
+    - field: COMMENT
+      value: "FAIL due to low quality score"
+
 
 - id: "MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE"
   description: "FAIL when both KMER and ASSEMBLY genome sizes are outside 10% of acceptable range"
