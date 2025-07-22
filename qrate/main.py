@@ -4,7 +4,6 @@ import argparse
 import os
 import sys
 import yaml
-import csv
 import pkg_resources
 from .csv_handler import read_csv, write_csv
 from .curation_engine import CurationEngine

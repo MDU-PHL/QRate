@@ -235,11 +235,6 @@ class CurationEngine:
                         status = "✗ NOT MET"
                     print(f"    - {eval_info['rule_id']}: {status}")
                     print(f"      Description: {eval_info['description']}")
-                    # status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
-                    # print(f"    - {eval_info['rule_id']}: {status}")
-                    # print(f"      Description: {eval_info['description']}")
-                    # if eval_info['conditions_met']:
-                    #     matched_any_mms103 = True
                 
                 if not matched_any_mms103:
                     print("    → No MMS103 rules matched - original value preserved")
@@ -258,11 +253,6 @@ class CurationEngine:
                         status = "✗ NOT MET"
                     print(f"    - {eval_info['rule_id']}: {status}")
                     print(f"      Description: {eval_info['description']}")
-                    # status = "✓ MET" if eval_info['conditions_met'] else "✗ NOT MET"
-                    # print(f"    - {eval_info['rule_id']}: {status}")
-                    # print(f"      Description: {eval_info['description']}")
-                    # if eval_info['conditions_met']:
-                    #     matched_any_mms109 = True
                 
                 if not matched_any_mms109:
                     print("    → No MMS109 rules matched - original value preserved")
