@@ -3,19 +3,131 @@
 # Add only the schemes that are returned as FALSE in the TEST_SCHEME field but should be TRUE
 # Format: scheme_name -> list of species that can use this scheme
 
+abaumannii:
+- Acinetobacter baumannii
+abaumannii_2:
+- Acinetobacter baumannii
+aeromonas:
+- Aeromonas spp.
+bcc:
+- Burkholderia cenocepacia
+- Burkholderia cepacia
+- Burkholderia multivorans
+- Burkholderia vietnamiensis
+- Burkholderia stabilis
+- Burkholderia ambifaria
+- Burkholderia dolosa
+- Burkholderia anthina
+- Burkholderia pyrrocinia
+- Burkholderia ubonensis
+- Burkholderia lata
+bordetella_3:
+- Bordetella spp.
+bpseudomallei:
+- Burkholderia pseudomallei
+campylobacter:
+- Campylobacter jejuni
+- Campylobacter coli
+campylobacter_nonjejuni:
+- Campylobacter helveticus
+campylobacter_nonjejuni_2:
+- Campylobacter insulaenigrae
+campylobacter_nonjejuni_3:
+- Campylobacter lari
+campylobacter_nonjejuni_4:
+- Campylobacter upsaliensis
+campylobacter_nonjejuni_5:
+- Campylobacter concisus
+campylobacter_nonjejuni_6:
+- Campylobacter hyointestinalis
+campylobacter_nonjejuni_7:
+- Campylobacter lanienae
+campylobacter_nonjejuni_8:
+- Campylobacter sputorum
+campylobacter_nonjejuni_9:
+- Campylobacter fetus
+cdifficile:
+- Peptoclostridium difficile
+- Clostridioides difficile
+cfreundii:
+- Citrobacter freundii
+cronobacter:
+- Cronobacter spp.
+ecloacae:
+- Enterobacter cloacae
+- Enterobacter hormaechei
+- Enterobacter absuriae
+- Enterobacter kobei
+- Enterobacter ludwigii
+- Enterobacter chengduensis
+- Enterobacter roggenkampii
+ecoli:
+- Escherichia coli
+- Shigella flexneri
+- Shigella boydii
+- Shigella sonnei
 ecoli_achtman_4:
-  - "Escherichia albertii"
-  - "Escherichia species"
-  - "Shigella flexneri"
-  - "Escherichia coli"
+- Escherichia coli
+- Shigella flexneri
+- Shigella boydii
+- Shigella sonnei
+- Escherichia albertii
+- Escherichia species
 
-
+efaecalis:
+- Enterococcus faecalis
+efaecium:
+- Enterococcus faecium
+hinfluenzae:
+- Haemophilus influenzae
+kaerogenes:
+- Klebsiella aerogenes
+- Enterobacter aerogenes
+klebsiella:
+- Klebsiella oxytoca
+- Klebsiella pneumoniae
+- Klebsiella pneumoniae
+koxytoca:
+- Klebsiella oxytoca
+- Klebsiella pneumoniae
+- Klebsiella pneumoniae
+listeria_2:
+- Listeria monocytogenes
+mabscessus:
+- Mycobacterium abscessus
+mabscessus_2:
+- Mycobacterium massiliense
+mbovis:
+- Mycobacterium bovis
+mycobacteria_2:
+- Mycobacterium tuberculosis
+- Mycobacterium ulcerans
+- Mycobacterium chimaera
+neisseria:
+- Neisseria meningitidis
+- Neisseria gonorrhoeae
+pacnes_3:
+- Cutibacterium acnes
+paeruginosa:
+- Pseudomonas aeruginosa
+pputida:
+- Pseudomonas putida
+saureus:
+- Staphylococcus aureus
+senterica_achtman_2:
+- Salmonella enterica
+- Salmonella species
+sepidermidis:
+- Staphylococcus epidermidis
+shaemolyticus:
+- Staphylococcus haemolyticus
 smaltophilia:
-  - "Stenotrophomonas species"
-
-# Add more mappings as needed
-# Example:
-# campylobacter:
-#   - "Campylobacter jejuni"
-#   - "Campylobacter coli"
-#   - "Campylobacter species"
+- Stenotrophomonas maltophilia
+spneumoniae:
+- Streptococcus pneumoniae
+spyogenes:
+- Streptococcus pyogenes
+staphlugdunensis:
+- Staphylococcus lugdunensis
+vparahaemolyticus:
+- Vibrio parahaemolyticus
