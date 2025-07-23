@@ -114,17 +114,17 @@ def evaluate_condition(row, condition):
         species_obs = row.get('SPECIES_OBS', '')
         scheme = row.get('SCHEME', '')
         
-        print(f"DEBUG SCHEME_COMPATIBLE: SPECIES_OBS='{species_obs}', SCHEME='{scheme}'")
-        print(f"DEBUG: Available schemes: {list(mapping.keys()) if mapping else 'None'}")
+        # print(f"DEBUG SCHEME_COMPATIBLE: SPECIES_OBS='{species_obs}', SCHEME='{scheme}'")
+        # print(f"DEBUG: Available schemes: {list(mapping.keys()) if mapping else 'None'}")
     
         if not mapping or scheme not in mapping:
-            print(f"DEBUG: Scheme '{scheme}' not found in mapping, returning False")
+            # print(f"DEBUG: Scheme '{scheme}' not found in mapping, returning False")
             return False
         
         compatible_species = mapping[scheme]
         is_compatible = species_obs in compatible_species
-        print(f"DEBUG: Compatible species for '{scheme}': {compatible_species}")
-        print(f"DEBUG: Is '{species_obs}' in compatible list? {is_compatible}")
+        # print(f"DEBUG: Compatible species for '{scheme}': {compatible_species}")
+        # print(f"DEBUG: Is '{species_obs}' in compatible list? {is_compatible}")
         
         # Return result based on expected value
         # If value is True, return True when species IS compatible

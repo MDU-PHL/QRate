@@ -7,6 +7,7 @@ import yaml
 import pkg_resources
 from .csv_handler import read_csv, write_csv
 from .curation_engine import CurationEngine
+from .species_checker import SpeciesChecker
 from . import __version__
 
 def find_config_file(config_name):
@@ -32,8 +33,13 @@ def main():
     parser = argparse.ArgumentParser(description="QRate - QC data curation tool for bacterial genomics")
     parser.add_argument("input_file", nargs='?', help="Path to input CSV file")
     parser.add_argument("-o", "--output", help="Path to output CSV file (default: input file with .curated suffix)")
-    parser.add_argument("-r", "--rules", help="Path to rules YAML file", default=None)
+    default_rules_path = find_config_file('rules.yaml')
+    parser.add_argument(
+        "-r", "--rules",
+        help=f"Path to rules YAML file (default: {default_rules_path})"
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("-c","--check-species", action="store_true", help="Check species counts and provide file expectations after limisfy QC step")
     parser.add_argument("--version", action="version", version=f"QRate {__version__}")
     
     args = parser.parse_args()
@@ -95,6 +101,19 @@ def main():
             print(f"\nSUMMARY:")
             print(f"Processed {len(qc_data)} records")
             print(f"Output written to {args.output}")
+        
+        # Run species checking if requested
+        if args.check_species:
+            if not args.verbose:
+                print(f"\n{'='*50}")
+                print("SPECIES ANALYSIS")
+                print(f"{'='*50}")
+            
+            species_checker = SpeciesChecker()
+            species_success = species_checker.check_species(args.input_file, verbose=args.verbose)
+            
+            if not species_success:
+                print("Warning: Species checking encountered errors", file=sys.stderr)
     
     except FileNotFoundError as e:
         print(f"Error: Input file not found - {e}", file=sys.stderr)

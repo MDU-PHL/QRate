@@ -56,8 +56,66 @@ qrate input_file.csv -r custom_rules.yaml
 # Enable verbose output for detailed logging
 qrate input_file.csv -v
 
+# Check species counts and get file recommendations
+qrate input_file.csv --check-species
+
 # Combine options
 qrate input_file.csv -o output.csv -r custom_rules.yaml -v
+```
+
+### Species Checking Mode
+
+The `--check-species` flag runs both the normal curation process and provides additional species analysis:
+
+- Performs standard QC data curation and generates the `.curated.csv` output file
+- Counts occurrences of key bacterial species in your QC data
+- Identifies samples with "no identification"
+- Provides specific file recommendations based on detected species
+
+This mode combines curation with species analysis, so you get both the curated output file and the species recommendations in a single command.
+
+**Supported species detection:**
+
+- Salmonella
+- Listeria monocytogenes
+- Escherichia coli
+- Streptococcus pneumoniae
+- Streptococcus pyogenes
+- Neisseria meningitidis
+- Legionella pneumophila
+- Neisseria gonorrhoeae
+- Mycobacterium tuberculosis
+- Haemophilus influenzae
+
+**Example output:**
+
+```bash
+qrate standard_bacteria_qc.csv --check-species
+
+Loading rules from: /path/to/rules.yaml
+Reading input file: standard_bacteria_qc.csv
+Processing 89 records...
+Output written to: standard_bacteria_qc.curated.csv
+Processing completed successfully!
+
+==================================================
+SPECIES ANALYSIS
+==================================================
+There are 59 samples for Salmonella.
+There are 2 samples for Escherichia coli.
+There are 19 samples for Streptococcus pneumoniae.
+...
+
+---
+Expected files:
+* QC file
+* 2 NTC files
+* 1 Sequence report file
+* 1 Speciation file
+* MMS118 (AMR)
+Check for sistr typing file, MMS184 (Salmonella AMR), and MMS181 (Salmonella cgMLST)
+Check for EcOH typing file
+Check for seroba typing file
 ```
 
 ### Command-Line Arguments
@@ -66,6 +124,7 @@ qrate input_file.csv -o output.csv -r custom_rules.yaml -v
 - `-o, --output`: Path where the updated QC results will be saved (default: input file with .curated suffix)
 - `-r, --rules`: Path to rules configuration file (default: built-in rules.yaml)
 - `-v, --verbose`: Enable verbose output for detailed rule evaluation logging
+- `--check-species`: Run both curation and species analysis (generates curated output file and provides species recommendations)
 
 ## Configuration
 
@@ -120,7 +179,7 @@ After processing with `qrate`, the output will reflect the applied curation logi
 
 ### Project Structure
 
-```
+```text
 QCheck/
 ├── qrate/                  # Main package
 │   ├── __init__.py
@@ -128,6 +187,7 @@ QCheck/
 │   ├── curation_engine.py # Core curation logic
 │   ├── csv_handler.py     # CSV I/O functions
 │   ├── operators.py       # Rule evaluation operators
+│   ├── species_checker.py # Species analysis functionality
 │   └── config/            # Configuration files
 │       ├── rules.yaml
 │       └── species_scheme_mapping.yaml
