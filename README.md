@@ -98,9 +98,10 @@ qrate standard_bacteria_qc.csv --check-species
 [2025-07-23 14:30:17] Output written to: standard_bacteria_qc.curated.csv
 [2025-07-23 14:30:17] Processing completed successfully!
 
-[2025-07-23 14:30:17] ==================================================
-[2025-07-23 14:30:17] SPECIES ANALYSIS
-[2025-07-23 14:30:17] ==================================================
+[2025-07-23 14:30:17] 
+==================================================
+SPECIES ANALYSIS
+==================================================
 There are 59 samples for Salmonella.
 There are 2 samples for Escherichia coli.
 There are 19 samples for Streptococcus pneumoniae.
