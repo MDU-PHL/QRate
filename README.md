@@ -1,4 +1,4 @@
-# QRate (QCheck)
+# QRate - mudatagen QC Curation Tool
 
 QRate is a command-line tool for curating bacterial QC data based on configurable rules. It processes `standard_bacteria_qc.csv` files obtained from the `mdudatagen` pipeline and provides a flexible framework for applying quality control standards to genomic data.
 
@@ -18,8 +18,8 @@ QRate is a command-line tool for curating bacterial QC data based on configurabl
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/MDU-PHL/QCheck.git
-   cd QCheck
+   git clone https://github.com/MDU-PHL/QRate.git
+   cd QRate
    ```
 
 2. Install the package in development mode:
@@ -181,7 +181,7 @@ After processing with `qrate`, the output will reflect the applied curation logi
 ### Project Structure
 
 ```text
-QCheck/
+QRate/
 ├── qrate/                  # Main package
 │   ├── __init__.py
 │   ├── main.py            # CLI entry point
