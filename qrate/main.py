@@ -5,10 +5,17 @@ import os
 import sys
 import yaml
 import pkg_resources
+from datetime import datetime
 from .csv_handler import read_csv, write_csv
 from .curation_engine import CurationEngine
 from .species_checker import SpeciesChecker
 from . import __version__
+
+def log_with_timestamp(message, file=None):
+    """Print message with timestamp prefix."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    formatted_message = f"[{timestamp}] {message}"
+    print(formatted_message, file=file)
 
 def find_config_file(config_name):
     """Find configuration file, trying package resources first, then relative paths."""
@@ -59,8 +66,8 @@ def main():
         try:
             rules_file = find_config_file('rules.yaml')
         except FileNotFoundError:
-            print("Error: No rules file specified and default 'rules.yaml' not found", file=sys.stderr)
-            print("Please specify a rules file with -r/--rules or ensure 'rules.yaml' exists", file=sys.stderr)
+            log_with_timestamp("Error: No rules file specified and default 'rules.yaml' not found", file=sys.stderr)
+            log_with_timestamp("Please specify a rules file with -r/--rules or ensure 'rules.yaml' exists", file=sys.stderr)
             return 1
     
     # Load rules configuration
@@ -68,23 +75,23 @@ def main():
         with open(rules_file, 'r') as f:
             rules = yaml.safe_load(f)
         if not args.verbose:
-            print(f"Loading rules from: {rules_file}")
+            log_with_timestamp(f"Loading rules from: {rules_file}")
     except FileNotFoundError as e:
-        print(f"Error: Configuration file not found - {e}", file=sys.stderr)
+        log_with_timestamp(f"Error: Configuration file not found - {e}", file=sys.stderr)
         return 1
     except yaml.YAMLError as e:
-        print(f"Error parsing YAML configuration: {e}", file=sys.stderr)
+        log_with_timestamp(f"Error parsing YAML configuration: {e}", file=sys.stderr)
         return 1
     
     # Process QC data
     try:
         if not args.verbose:
-            print(f"Reading input file: {args.input_file}")
+            log_with_timestamp(f"Reading input file: {args.input_file}")
         
         qc_data = read_csv(args.input_file)
         
         if not args.verbose:
-            print(f"Processing {len(qc_data)} records...")
+            log_with_timestamp(f"Processing {len(qc_data)} records...")
         
         # Initialize curation engine
         curation_engine = CurationEngine(rules, verbose=args.verbose)
@@ -95,17 +102,17 @@ def main():
         write_csv(processed_data, args.output)
         
         if not args.verbose:
-            print(f"Output written to: {args.output}")
-            print("Processing completed successfully!")
+            log_with_timestamp(f"Output written to: {args.output}")
+            log_with_timestamp("Processing completed successfully!")
         elif args.verbose:
-            print(f"\nSUMMARY:")
-            print(f"Processed {len(qc_data)} records")
-            print(f"Output written to {args.output}")
+            log_with_timestamp(f"\nSUMMARY:")
+            log_with_timestamp(f"Processed {len(qc_data)} records")
+            log_with_timestamp(f"Output written to {args.output}")
         
         # Run species checking if requested
         if args.check_species:
             if not args.verbose:
-                print(f"\n{'='*50}")
+                log_with_timestamp(f"\n{'='*50}")
                 print("SPECIES ANALYSIS")
                 print(f"{'='*50}")
             
@@ -113,13 +120,13 @@ def main():
             species_success = species_checker.check_species(args.input_file, verbose=args.verbose)
             
             if not species_success:
-                print("Warning: Species checking encountered errors", file=sys.stderr)
+                log_with_timestamp("Warning: Species checking encountered errors", file=sys.stderr)
     
     except FileNotFoundError as e:
-        print(f"Error: Input file not found - {e}", file=sys.stderr)
+        log_with_timestamp(f"Error: Input file not found - {e}", file=sys.stderr)
         return 1
     except Exception as e:
-        print(f"Error processing QC data: {e}", file=sys.stderr)
+        log_with_timestamp(f"Error processing QC data: {e}", file=sys.stderr)
         return 1
     
     return 0

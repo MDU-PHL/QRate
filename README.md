@@ -92,15 +92,15 @@ This mode combines curation with species analysis, so you get both the curated o
 ```bash
 qrate standard_bacteria_qc.csv --check-species
 
-Loading rules from: /path/to/rules.yaml
-Reading input file: standard_bacteria_qc.csv
-Processing 89 records...
-Output written to: standard_bacteria_qc.curated.csv
-Processing completed successfully!
+[2025-07-23 14:30:15] Loading rules from: /path/to/rules.yaml
+[2025-07-23 14:30:15] Reading input file: standard_bacteria_qc.csv
+[2025-07-23 14:30:16] Processing 89 records...
+[2025-07-23 14:30:17] Output written to: standard_bacteria_qc.curated.csv
+[2025-07-23 14:30:17] Processing completed successfully!
 
-==================================================
-SPECIES ANALYSIS
-==================================================
+[2025-07-23 14:30:17] ==================================================
+[2025-07-23 14:30:17] SPECIES ANALYSIS
+[2025-07-23 14:30:17] ==================================================
 There are 59 samples for Salmonella.
 There are 2 samples for Escherichia coli.
 There are 19 samples for Streptococcus pneumoniae.

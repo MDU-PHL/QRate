@@ -2,6 +2,13 @@
 
 import csv
 import sys
+from datetime import datetime
+
+def log_with_timestamp(message, file=None):
+    """Print message with timestamp prefix."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    formatted_message = f"[{timestamp}] {message}"
+    print(formatted_message, file=file)
 
 class SpeciesChecker:
     """Species checker for QC CSV files."""
@@ -28,10 +35,10 @@ class SpeciesChecker:
                         if any(species in cell for cell in row):
                             species_count[species] += 1
         except FileNotFoundError:
-            print(f"Error: File '{file_path}' not found", file=sys.stderr)
+            log_with_timestamp(f"Error: File '{file_path}' not found", file=sys.stderr)
             return None
         except Exception as e:
-            print(f"Error reading file '{file_path}': {e}", file=sys.stderr)
+            log_with_timestamp(f"Error reading file '{file_path}': {e}", file=sys.stderr)
             return None
 
         return species_count
@@ -47,10 +54,10 @@ class SpeciesChecker:
                     if any("no identification" in cell.lower() for cell in row):
                         no_identification_count += 1
         except FileNotFoundError:
-            print(f"Error: File '{file_path}' not found", file=sys.stderr)
+            log_with_timestamp(f"Error: File '{file_path}' not found", file=sys.stderr)
             return None
         except Exception as e:
-            print(f"Error reading file '{file_path}': {e}", file=sys.stderr)
+            log_with_timestamp(f"Error reading file '{file_path}': {e}", file=sys.stderr)
             return None
         
         return no_identification_count
