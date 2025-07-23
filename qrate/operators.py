@@ -114,11 +114,28 @@ def evaluate_condition(row, condition):
         species_obs = row.get('SPECIES_OBS', '')
         scheme = row.get('SCHEME', '')
         
+        print(f"DEBUG SCHEME_COMPATIBLE: SPECIES_OBS='{species_obs}', SCHEME='{scheme}'")
+        print(f"DEBUG: Available schemes: {list(mapping.keys()) if mapping else 'None'}")
+    
         if not mapping or scheme not in mapping:
+            print(f"DEBUG: Scheme '{scheme}' not found in mapping, returning False")
             return False
         
         compatible_species = mapping[scheme]
-        return species_obs in compatible_species
+        is_compatible = species_obs in compatible_species
+        print(f"DEBUG: Compatible species for '{scheme}': {compatible_species}")
+        print(f"DEBUG: Is '{species_obs}' in compatible list? {is_compatible}")
+        
+        # Return result based on expected value
+        # If value is True, return True when species IS compatible
+        # If value is False, return True when species is NOT compatible
+        if value is True:
+            return is_compatible
+        elif value is False:
+            return not is_compatible
+        else:
+            # Default behavior (backward compatibility) - return True when compatible
+            return is_compatible
     
     elif operator == "genus_level_match":
         # Special operator to check if SPECIES_OBS matches at genus level with SPECIES_EXP
@@ -133,7 +150,18 @@ def evaluate_condition(row, condition):
         genus_obs = species_obs.split()[0] if species_obs else ''
         
         # Check if genus matches (case-insensitive)
-        return genus_exp.lower() == genus_obs.lower() if genus_exp and genus_obs else False
+        genus_matches = genus_exp.lower() == genus_obs.lower() if genus_exp and genus_obs else False
+        
+        # Return result based on expected value
+        # If value is True, return True when genus DOES match
+        # If value is False, return True when genus does NOT match
+        if value is True:
+            return genus_matches
+        elif value is False:
+            return not genus_matches
+        else:
+            # Default behavior (backward compatibility) - return True when matches
+            return genus_matches
     
     elif operator == "species_subspecies_match":
         # SPECIES_EXP contains "ssp" and SPECIES_OBS matches the base species part
@@ -143,13 +171,24 @@ def evaluate_condition(row, condition):
         
         # Check if SPECIES_EXP contains "ssp"
         if " ssp " not in species_exp.lower():
-            return False
+            subspecies_match = False
+        else:
+            # Extract the base species part (everything before " ssp ")
+            base_species = species_exp.split(" ssp ")[0].strip()
+            
+            # Check if SPECIES_OBS matches the base species (case-insensitive)
+            subspecies_match = species_obs.lower() == base_species.lower()
         
-        # Extract the base species part (everything before " ssp ")
-        base_species = species_exp.split(" ssp ")[0].strip()
-        
-        # Check if SPECIES_OBS matches the base species (case-insensitive)
-        return species_obs.lower() == base_species.lower()
+        # Return result based on expected value
+        # If value is True, return True when subspecies DOES match
+        # If value is False, return True when subspecies does NOT match
+        if value is True:
+            return subspecies_match
+        elif value is False:
+            return not subspecies_match
+        else:
+            # Default behavior (backward compatibility) - return True when matches
+            return subspecies_match
     
     elif operator == "species_different_genus_match":
         # Both species are specific (not generic), have same genus, but are different species
@@ -160,16 +199,27 @@ def evaluate_condition(row, condition):
         # Both should not contain "species" or "ssp"
         if (" species" in species_obs.lower() or " species" in species_exp.lower() or
             " ssp " in species_obs.lower() or " ssp " in species_exp.lower()):
-            return False
+            different_genus_match = False
+        else:
+            # Extract genus from both
+            genus_obs = species_obs.split()[0] if species_obs else ''
+            genus_exp = species_exp.split()[0] if species_exp else ''
+            
+            # Check if genus matches but species are different
+            different_genus_match = (genus_obs and genus_exp and 
+                    genus_obs.lower() == genus_exp.lower() and 
+                    species_obs.lower() != species_exp.lower())
         
-        # Extract genus from both
-        genus_obs = species_obs.split()[0] if species_obs else ''
-        genus_exp = species_exp.split()[0] if species_exp else ''
-        
-        # Check if genus matches but species are different
-        return (genus_obs and genus_exp and 
-                genus_obs.lower() == genus_exp.lower() and 
-                species_obs.lower() != species_exp.lower())
+        # Return result based on expected value
+        # If value is True, return True when there IS a different genus match
+        # If value is False, return True when there is NOT a different genus match
+        if value is True:
+            return different_genus_match
+        elif value is False:
+            return not different_genus_match
+        else:
+            # Default behavior (backward compatibility) - return True when matches
+            return different_genus_match
     
     elif operator == "species_genus_mismatch":
         # SPECIES_EXP and SPECIES_OBS have different genera (complete mismatch)
@@ -181,8 +231,19 @@ def evaluate_condition(row, condition):
         genus_exp = species_exp.split()[0] if species_exp else ''
         
         # Check if genera are different (case-insensitive)
-        return (genus_obs and genus_exp and 
+        genus_mismatch = (genus_obs and genus_exp and 
                 genus_obs.lower() != genus_exp.lower())
+        
+        # Return result based on expected value
+        # If value is True, return True when genera DO mismatch
+        # If value is False, return True when genera do NOT mismatch
+        if value is True:
+            return genus_mismatch
+        elif value is False:
+            return not genus_mismatch
+        else:
+            # Default behavior (backward compatibility) - return True when mismatch
+            return genus_mismatch
     
     elif operator == "species_synonym_match":
         # Special operator to check if SPECIES_OBS is a synonym of SPECIES_EXP
@@ -201,18 +262,29 @@ def evaluate_condition(row, condition):
             with open(config_path, 'r') as f:
                 mapping = yaml.safe_load(f)
         except:
-            return False
+            synonym_match = False
+        else:
+            species_obs = row.get('SPECIES_OBS', '').strip()
+            species_exp = row.get('SPECIES_EXP', '').strip()
+            
+            if not mapping or 'synonyms' not in mapping:
+                synonym_match = False
+            else:
+                synonyms = mapping['synonyms']
+                
+                # Check if SPECIES_OBS is a synonym for SPECIES_EXP
+                synonym_match = synonyms.get(species_obs) == species_exp
         
-        species_obs = row.get('SPECIES_OBS', '').strip()
-        species_exp = row.get('SPECIES_EXP', '').strip()
-        
-        if not mapping or 'synonyms' not in mapping:
-            return False
-        
-        synonyms = mapping['synonyms']
-        
-        # Check if SPECIES_OBS is a synonym for SPECIES_EXP
-        return synonyms.get(species_obs) == species_exp
+        # Return result based on expected value
+        # If value is True, return True when species IS a synonym
+        # If value is False, return True when species is NOT a synonym
+        if value is True:
+            return synonym_match
+        elif value is False:
+            return not synonym_match
+        else:
+            # Default behavior (backward compatibility) - return True when synonym
+            return synonym_match
                         
     # Unrecognized operator
     return False
