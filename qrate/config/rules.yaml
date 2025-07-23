@@ -273,6 +273,19 @@
 
 
 # MMS109 specific rules
+
+- id: "MMS109_SCHEME_NOT_COMPATIBLE"
+  description: "Manual PASS when MLST scheme is appropriate for species despite scheme test is true"
+  conditions:
+    - field: SPECIES_OBS
+      operator: "species_scheme_compatible"
+      value: false # this means not compatible
+  actions:
+    - field: MMS109
+      value: "FLAG"
+    - field: COMMENT
+      value: "MLST scheme not appropriate for SPECIES_OBS"
+
 - id: "MMS109_SCHEME_COMPATIBLE"
   description: "Manual PASS when MLST scheme is appropriate for species despite failed scheme test"
   conditions:

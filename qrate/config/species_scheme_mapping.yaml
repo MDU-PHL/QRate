@@ -6,6 +6,9 @@
 ecoli_achtman_4:
   - "Escherichia albertii"
   - "Escherichia species"
+  - "Shigella flexneri"
+  - "Escherichia coli"
+
 
 smaltophilia:
   - "Stenotrophomonas species"
