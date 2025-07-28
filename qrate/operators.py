@@ -89,9 +89,6 @@ def evaluate_condition(row, condition):
                 return is_outside
             elif value is False:
                 return not is_outside
-            else:
-                # Default behavior (backward compatibility) - return True when outside
-                return is_outside
             
         except (ValueError, TypeError):
             return False
@@ -134,9 +131,6 @@ def evaluate_condition(row, condition):
             return is_compatible
         elif value is False:
             return not is_compatible
-        else:
-            # Default behavior (backward compatibility) - return True when compatible
-            return is_compatible
     
     elif operator == "genus_level_match":
         # Special operator to check if SPECIES_OBS matches at genus level with SPECIES_EXP
@@ -160,9 +154,6 @@ def evaluate_condition(row, condition):
             return genus_matches
         elif value is False:
             return not genus_matches
-        else:
-            # Default behavior (backward compatibility) - return True when matches
-            return genus_matches
     
     elif operator == "species_subspecies_match":
         # SPECIES_EXP contains "ssp" and SPECIES_OBS matches the base species part
@@ -187,9 +178,6 @@ def evaluate_condition(row, condition):
             return subspecies_match
         elif value is False:
             return not subspecies_match
-        else:
-            # Default behavior (backward compatibility) - return True when matches
-            return subspecies_match
     
     elif operator == "species_different_genus_match":
         # Both species are specific (not generic), have same genus, but are different species
@@ -218,9 +206,6 @@ def evaluate_condition(row, condition):
             return different_genus_match
         elif value is False:
             return not different_genus_match
-        else:
-            # Default behavior (backward compatibility) - return True when matches
-            return different_genus_match
     
     elif operator == "species_genus_mismatch":
         # SPECIES_EXP and SPECIES_OBS have different genera (complete mismatch)
@@ -242,9 +227,6 @@ def evaluate_condition(row, condition):
             return genus_mismatch
         elif value is False:
             return not genus_mismatch
-        else:
-            # Default behavior (backward compatibility) - return True when mismatch
-            return genus_mismatch
     
     elif operator == "species_synonym_match":
         # Special operator to check if SPECIES_OBS is a synonym of SPECIES_EXP
@@ -280,9 +262,47 @@ def evaluate_condition(row, condition):
             return synonym_match
         elif value is False:
             return not synonym_match
-        else:
-            # Default behavior (backward compatibility) - return True when synonym
-            return synonym_match
+    
+    # for species_within_complex
+    elif operator == "species_within_complex":
+        # Special operator to check if SPECIES_OBS is within the species complex of SPECIES_EXP
+        # load the species complex mapping
+
+        try:
+            # Try to find config file relative to package
+            try:
+                config_path = pkg_resources.resource_filename('qrate', 'config/species_complex_mapping.yaml')
+            except:
+                config_path = os.path.join(os.path.dirname(__file__), 'config', 'species_complex_mapping.yaml')
+                
+            with open(config_path, 'r') as f:
+                complex_mapping = yaml.safe_load(f)
+        except:
+            return False
+
+        species_obs = row.get('SPECIES_OBS', '')
+        species_exp = row.get('SPECIES_EXP', '')
+
+        print(f"DEBUG: Checking if '{species_obs}' is within the complex of '{species_exp}'")
+        print(f"DEBUG: Available species complexes: {list(complex_mapping.keys()) if complex_mapping else 'None'}")
+        if not complex_mapping or species_exp not in complex_mapping:
+            print(f"DEBUG: Species '{species_exp}' not found in complex mapping, returning False")
+            return False
+        
+        complex_species = complex_mapping[species_exp]
+        is_within_complex = species_obs in complex_species
+        print(f"DEBUG: Species complex for '{species_exp}': {complex_species}")
+        print(f"DEBUG: Is '{species_obs}' within complex? {is_within_complex}")
+        
+        # Return result based on expected value
+        # If value is True, return True when species IS within complex
+        # If value is False, return True when species is NOT within complex
+        if value is True:
+            return is_within_complex
+        elif value is False:
+            return not is_within_complex
                         
     # Unrecognized operator
     return False
+
+    

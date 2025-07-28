@@ -1,0 +1,22 @@
+# Mapping of species to their complexes
+# This file defines which species are considered part of a complex
+# Add the species complexes here
+# Format: species_exp_complex -> list of species that are part of this complex
+
+Enterobacter cloacae complex:
+- Enterobacter cloacae
+- Enterobacter hormaechei
+- Enterobacter asburiae
+- Enterobacter kobei
+- Enterobacter ludwigii
+- Enterobacter chengduensis
+- Enterobacter roggenkampii
+Citrobacter freundii complex:
+- Citrobacter freundii
+- Citrobacter braakii
+- Citrobacter gillenii
+- Citrobacter murliniae
+- Citrobacter rodenticum
+- Citrobacter sedlakii
+- Citrobacter werkmanii
+- Citrobacter youngae

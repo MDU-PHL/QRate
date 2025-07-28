@@ -272,7 +272,21 @@
   skip_rules:
     - MMS103_FAIL_SPECIES_MISMATCH
 
-
+- id: "MMS103_PASS_SPECIES_COMPLEX"
+  description: "PASS when SPECIES_OBS is within the species complex of SPECIES_EXP"
+  conditions:
+    - field: TEST_SPECIES
+      operator: "=="
+      value: false
+    - field: SPECIES_OBS
+      operator: "species_within_complex"
+      value: true
+  actions:
+    - field: MMS103
+      value: "PASS"
+    - field: COMMENT
+      value: "MMS103 Manual PASS as sp. OBS is within the species complex of sp. EXP."
+      
 # MMS109 specific rules
 
 - id: "MMS109_SCHEME_NOT_COMPATIBLE"

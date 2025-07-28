@@ -1,6 +1,5 @@
 # Species to MLST Scheme Mapping
 # This file maps observed species to their corresponding MLST schemes
-# Add only the schemes that are returned as FALSE in the TEST_SCHEME field but should be TRUE
 # Format: scheme_name -> list of species that can use this scheme
 
 abaumannii:
