@@ -84,9 +84,10 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to kmer and assembly genome size being within the 10% acceptable range"
-  # skip_rules:
-  #   - MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE
+      value: "MMS103 Manual PASS due to kmer and assembly genome size within the 10% acceptable range"
+  skip_rules:
+    - MMS103_PASS_GENOME_SIZE_KMER_WITHIN_RANGE
+    - MMS103_PASS_GENOME_ASSEMBLY_SIZE_WITHIN_RANGE
 
 - id: "MMS103_PASS_GENOME_SIZE_KMER_WITHIN_RANGE"
   description: "PASS when KMER genome size is within 10% of acceptable range and TEST_GENOME_SIZE_ASSEMBLY size is TRUE"
@@ -107,7 +108,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to kmer genome size being within the 10% acceptable range"
+      value: "MMS103 Manual PASS due to kmer genome size within the 10% acceptable range"
 
 - id: "MMS103_PASS_GENOME_ASSEMBLY_SIZE_WITHIN_RANGE"
   description: "PASS when ASSEMBLY genome size is within 10% of acceptable range and TEST_GENOME_SIZE_KMER size is TRUE"
@@ -128,7 +129,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to assembly genome size being within the 10% acceptable range"
+      value: "MMS103 Manual PASS due to assembly genome size within the 10% acceptable range"
 
 - id: "MMS103_PASS_GENUS_MATCH"
   description: "Manual PASS when genus matches between SPECIES_OBS and SPECIES_EXP despite failed species test"
@@ -296,6 +297,8 @@
       operator: "species_scheme_compatible"
       value: true
   actions:
+    - field: MMS109
+      value: "PASS"
     - field: COMMENT
       value: "MLST scheme appropriate for SPECIES_OBS"  
 
