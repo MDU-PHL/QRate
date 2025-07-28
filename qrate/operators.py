@@ -1,3 +1,7 @@
+import yaml
+import os
+import pkg_resources
+
 def evaluate_condition(row, condition):
     """Evaluate a single condition against a row of QC data.
     
@@ -95,9 +99,6 @@ def evaluate_condition(row, condition):
     elif operator == "species_scheme_compatible":
         # Special operator to check if SPECIES_OBS is compatible with SCHEME
         # This requires loading the species scheme mapping
-        import yaml
-        import os
-        import pkg_resources
         
         try:
             # Try to find config file relative to package
@@ -248,9 +249,6 @@ def evaluate_condition(row, condition):
     elif operator == "species_synonym_match":
         # Special operator to check if SPECIES_OBS is a synonym of SPECIES_EXP
         # This requires loading the species synonym mapping
-        import yaml
-        import os
-        import pkg_resources
         
         try:
             # Try to find config file relative to package
