@@ -14,7 +14,7 @@
     - field: MMS103
       value: "FAIL"
     - field: COMMENT
-      value: "FAIL due to low coverage"
+      value: "FAIL low coverage"
 
 - id: "MMS103_FAIL_LOW_QUALITY"
   description: "Low quality detected"
@@ -29,7 +29,7 @@
     - field: MMS103
       value: "FAIL"
     - field: COMMENT
-      value: "FAIL due to low quality score"
+      value: "FAIL low quality score"
 
 
 - id: "MMS103_FAIL_GENOME_SIZE_OUTSIDE_RANGE"
@@ -57,7 +57,7 @@
     - field: MMS103
       value: "FAIL"
     - field: COMMENT
-      value: "FAIL due to kmer and assembly genome size being outside acceptable the 10% acceptable range"
+      value: "FAIL kmer and assembly genome size outside the 10% acceptable range"
 
 - id: "MMS103_PASS_GENOME_SIZE_WITHIN_RANGE"
   description: "PASS when both KMER and ASSEMBLY genome sizes are within 10% of acceptable range"
@@ -84,7 +84,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to kmer and assembly genome size within the 10% acceptable range"
+      value: "MMS103 Manual PASS kmer and assembly genome size within the 10% acceptable range"
   skip_rules:
     - MMS103_PASS_GENOME_SIZE_KMER_WITHIN_RANGE
     - MMS103_PASS_GENOME_ASSEMBLY_SIZE_WITHIN_RANGE
@@ -108,7 +108,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to kmer genome size within the 10% acceptable range"
+      value: "MMS103 Manual PASS kmer genome size within the 10% acceptable range"
 
 - id: "MMS103_PASS_GENOME_ASSEMBLY_SIZE_WITHIN_RANGE"
   description: "PASS when ASSEMBLY genome size is within 10% of acceptable range and TEST_GENOME_SIZE_KMER size is TRUE"
@@ -129,7 +129,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS due to assembly genome size within the 10% acceptable range"
+      value: "MMS103 Manual PASS assembly genome size within the 10% acceptable range"
 
 - id: "MMS103_PASS_GENUS_MATCH"
   description: "Manual PASS when genus matches between SPECIES_OBS and SPECIES_EXP despite failed species test"
@@ -147,7 +147,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as no sp. supplied for sp. EXP and match at genus level to sp. OBS"
+      value: "MMS103 Manual PASS No sp. supplied for sp. EXP and match at genus level to sp. OBS"
 
 - id: "MMS103_PASS_SPECIES_SSP_INCL"
   description: "PASS when species is a subspecies of the expected species"
@@ -165,7 +165,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as ssp incl. in sp. EXP"
+      value: "MMS103 Manual PASS ssp incl. in sp. EXP"
 
 - id: "MMS103_FLAG_SPECIES_UNRESOLVED"
   description: "FLAG when species could not be resolved below genus level"
@@ -183,7 +183,7 @@
     - field: MMS103
       value: "FLAG"
     - field: COMMENT
-      value: "MMS103 FLAG as sp. OBS match at genus level to sp. EXP and species could not be resolved below the genus level"
+      value: "MMS103 FLAG sp. OBS match at genus level to sp. EXP and species could not be resolved below the genus level"
 
 - id: "MMS103_FLAG_SPECIES_MISMATCH_GENUS_MATCH"
   description: "FLAG when species are different but genus matches"
@@ -198,7 +198,7 @@
     - field: MMS103
       value: "FLAG"
     - field: COMMENT
-      value: "MMS103 FLAG as sp. OBS match at genus level to sp. EXP"
+      value: "MMS103 FLAG sp. OBS match at genus level to sp. EXP"
 
 - id: "MMS103_FAIL_SPECIES_MISMATCH"
   description: "FAIL when species have different genera"
@@ -213,7 +213,7 @@
     - field: MMS103
       value: "FAIL"
     - field: COMMENT
-      value: "FAIL due to species mismatch"
+      value: "FAIL species mismatch"
 
 - id: "MMS103_PASS_SPECIES_SYNONYM"
   description: "PASS when SPECIES_OBS is a known synonym of SPECIES_EXP"
@@ -228,7 +228,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as sp. OBS is synonym for sp. EXP"
+      value: "MMS103 Manual PASS sp. OBS is synonym for sp. EXP"
   skip_rules:
     - MMS103_FAIL_SPECIES_MISMATCH
 
@@ -248,7 +248,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as Ecoli and Shigella are known species issue"
+      value: "MMS103 Manual PASS Ecoli and Shigella are known species issue"
   skip_rules:
     - MMS103_FAIL_SPECIES_MISMATCH
 
@@ -268,7 +268,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as Ecoli and Shigella are known species issue"
+      value: "MMS103 Manual PASS Ecoli and Shigella are known species issue"
   skip_rules:
     - MMS103_FAIL_SPECIES_MISMATCH
 
@@ -285,7 +285,7 @@
     - field: MMS103
       value: "PASS"
     - field: COMMENT
-      value: "MMS103 Manual PASS as sp. OBS is within the species complex of sp. EXP."
+      value: "MMS103 Manual PASS sp. OBS is within the species complex of sp. EXP."
       
 # MMS109 specific rules
 
@@ -299,7 +299,7 @@
     - field: MMS109
       value: "FLAG"
     - field: COMMENT
-      value: "MLST scheme not appropriate for SPECIES_OBS"
+      value: "MMS109 FLAG MLST scheme not appropriate for SPECIES_OBS"
 
 - id: "MMS109_SCHEME_COMPATIBLE"
   description: "Manual PASS when MLST scheme is appropriate for species despite failed scheme test"
@@ -314,7 +314,7 @@
     - field: MMS109
       value: "PASS"
     - field: COMMENT
-      value: "MLST scheme appropriate for SPECIES_OBS"  
+      value: "MMS109 Manual PASS MLST scheme acceptable for SPECIES_OBS"  # FLAG: change appropriate to acceptable?
 
 - id: "MMS109_FLAG_NOVEL_ALLELE"
   description: "Novel allele detected when TEST_SCHEME is true"
@@ -332,7 +332,7 @@
     - field: MMS109
       value: "FLAG"
     - field: COMMENT
-      value: "MMS109 FLAG as NOVEL ALLELE resulted in no ST"
+      value: "MMS109 FLAG NOVEL ALLELE resulted in no ST"
 
 - id: "MMS109_FLAG_NOVEL_ALLELE_COMPATIBLE"
   description: "Novel allele detected when species is compatible with scheme"
@@ -353,7 +353,7 @@
     - field: MMS109
       value: "FLAG"
     - field: COMMENT
-      value: "MMS109 FLAG as NOVEL ALLELE resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
+      value: "MMS109 FLAG NOVEL ALLELE resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
 
 - id: "MMS109_PARTIAL"
   description: "Partial MLST scheme when TEST_SCHEME is true"
@@ -371,7 +371,7 @@
     - field: MMS109
       value: "FLAG"
     - field: COMMENT
-      value: "MMS109 FLAG as PARTIAL MLST scheme resulted in no ST"
+      value: "MMS109 FLAG PARTIAL MLST scheme resulted in no ST"
 
 - id: "MMS109_PARTIAL_COMPATIBLE"
   description: "Partial MLST scheme when species is compatible with scheme"
@@ -392,7 +392,7 @@
     - field: MMS109
       value: "FLAG"
     - field: COMMENT
-      value: "MMS109 FLAG as PARTIAL MLST scheme resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
+      value: "MMS109 FLAG PARTIAL MLST scheme resulted in no ST; MLST scheme appropriate for SPECIES_OBS"
 
 - id: "MMS109_PASS_NOVEL_COMBINATION"
   description: "Novel combination of alleles when TEST_SCHEME is true"
@@ -410,26 +410,5 @@
     - field: MMS109
       value: "PASS"
     - field: COMMENT
-      value: "MMS109 Manual PASS as NOVEL COMBINATION of alleles resulted in no ST"
-
-- id: "MMS109_PASS_SCHEME_COMPATIBLE_MANUAL_PASS"
-  description: "Manual PASS when MLST scheme is appropriate for species despite failed scheme test"
-  conditions:
-    - field: TEST_SCHEME
-      operator: "=="
-      value: false
-    - field: TEST_ST
-      operator: "=="
-      value: true
-    - field: TEST_MLST_ALLELES
-      operator: "=="
-      value: "COMPLETE"
-    - field: SPECIES_OBS
-      operator: "species_scheme_compatible"
-      value: true
-  actions:
-    - field: MMS109
-      value: "PASS"
-    - field: COMMENT
-      value: "MMS109 Manual PASS as MLST scheme appropriate for SPECIES_OBS"  
+      value: "MMS109 Manual PASS NOVEL COMBINATION of alleles resulted in no ST"
 

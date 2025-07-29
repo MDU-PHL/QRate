@@ -283,16 +283,16 @@ def evaluate_condition(row, condition):
         species_obs = row.get('SPECIES_OBS', '')
         species_exp = row.get('SPECIES_EXP', '')
 
-        print(f"DEBUG: Checking if '{species_obs}' is within the complex of '{species_exp}'")
-        print(f"DEBUG: Available species complexes: {list(complex_mapping.keys()) if complex_mapping else 'None'}")
+        # print(f"DEBUG: Checking if '{species_obs}' is within the complex of '{species_exp}'")
+        # print(f"DEBUG: Available species complexes: {list(complex_mapping.keys()) if complex_mapping else 'None'}")
         if not complex_mapping or species_exp not in complex_mapping:
-            print(f"DEBUG: Species '{species_exp}' not found in complex mapping, returning False")
+            # print(f"DEBUG: Species '{species_exp}' not found in complex mapping, returning False")
             return False
         
         complex_species = complex_mapping[species_exp]
         is_within_complex = species_obs in complex_species
-        print(f"DEBUG: Species complex for '{species_exp}': {complex_species}")
-        print(f"DEBUG: Is '{species_obs}' within complex? {is_within_complex}")
+        # print(f"DEBUG: Species complex for '{species_exp}': {complex_species}")
+        # print(f"DEBUG: Is '{species_obs}' within complex? {is_within_complex}")
         
         # Return result based on expected value
         # If value is True, return True when species IS within complex
