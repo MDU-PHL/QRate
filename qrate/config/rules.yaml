@@ -286,6 +286,8 @@
       value: "PASS"
     - field: COMMENT
       value: "MMS103 Manual PASS sp. OBS is within the species complex of sp. EXP."
+  skip_rules:
+    - MMS103_FLAG_SPECIES_MISMATCH_GENUS_MATCH
       
 # MMS109 specific rules
 

@@ -253,7 +253,8 @@ def evaluate_condition(row, condition):
                 synonyms = mapping['synonyms']
                 
                 # Check if SPECIES_OBS is a synonym for SPECIES_EXP
-                synonym_match = synonyms.get(species_obs) == species_exp
+                synonym_match = (synonyms.get(species_obs) == species_exp or 
+                               synonyms.get(species_exp) == species_obs)
         
         # Return result based on expected value
         # If value is True, return True when species IS a synonym
